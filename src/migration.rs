@@ -16,11 +16,23 @@ pub fn insert_data(generated_sql_path: String) -> Result<(), Box<dyn std::error:
         .arg(format!("-p{}", env::var("MYSQL_PASSWORD").unwrap()))
         .arg(format!("-h{}", env::var("MYSQL_HOST").unwrap()))
         .arg("--default-character-set=utf8mb4")
+        .arg("-e")
+        .arg(format!(
+            "CREATE DATABASE IF NOT EXISTS {}",
+            env::var("MYSQL_DATABASE").unwrap()
+        ))
+        .spawn()?;
+    child.wait()?;
+
+    let mut child = Command::new("mysql")
+        .arg(format!("-u{}", env::var("MYSQL_USER").unwrap()))
+        .arg(format!("-p{}", env::var("MYSQL_PASSWORD").unwrap()))
+        .arg(format!("-h{}", env::var("MYSQL_HOST").unwrap()))
+        .arg("--default-character-set=utf8mb4")
         .arg(env::var("MYSQL_DATABASE").unwrap())
         .stdin(Stdio::from(generated_sql_file))
         .spawn()?;
-    let exit_status = child.wait()?;
-    println!("{}", exit_status);
+    child.wait()?;
 
     if !disable_memcached_flush {
         let cache_client = memcache::connect(memcached_url)?;
