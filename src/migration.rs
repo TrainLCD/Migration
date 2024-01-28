@@ -14,7 +14,7 @@ pub fn insert_data(generated_sql_path: String) -> Result<(), Box<dyn std::error:
     let mut child = Command::new("mysql")
         .arg(format!("-u{}", env::var("MYSQL_USER").unwrap()))
         .arg(format!("-p{}", env::var("MYSQL_PASSWORD").unwrap()))
-        .arg(format!("-S{}", env::var("MYSQL_SOCKET").unwrap()))
+        .arg(format!("-h{}", env::var("MYSQL_HOST").unwrap()))
         .arg("--default-character-set=utf8mb4")
         .arg(env::var("MYSQL_DATABASE").unwrap())
         .stdin(Stdio::from(generated_sql_file))
